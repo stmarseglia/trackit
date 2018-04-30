@@ -1,13 +1,14 @@
 <ion-content>
 
-  <ion-list>
-    <ion-item *ngFor="let project of projects">
-      <h2>{{project.customer}} - {{project.name}}</h2>
-      <h4>{{project.timeSpent | moment }}</h4>
-      <button ion-button clear color="dark" (click)="toggle(project)" item-end>
-        <ion-icon class="track-btn-icon" [name]="project.isTracked?'square':'play'"></ion-icon>
+  <ion-item-group *ngFor="let item of projectsArray">
+    <ion-item-divider color="light">{{item.customer}}</ion-item-divider>
+    <ion-item *ngFor="let proj of item.projects">
+      <h2>{{proj.name}}</h2>
+      <h4>{{proj.timeSpent | moment }}</h4>
+      <button ion-button clear color="dark" (click)="toggle(proj)" item-end>
+        <ion-icon class="track-btn-icon" [name]="proj.isTracked?'square':'play'"></ion-icon>
       </button>
     </ion-item>
-  </ion-list>
+  </ion-item-group>
 
 </ion-content>

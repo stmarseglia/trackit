@@ -3,19 +3,22 @@ import { Project } from "../../model/project";
 import * as moment from "moment";
 import { BackgroundMode } from "@ionic-native/background-mode";
 import { Config } from "../../config/config";
+import * as _ from "lodash";
 
 @Component({
   templateUrl: 'track.html'
 })
 export class TrackPage {
 
-  public projects: Project[] = new Array<Project>();
+  public projectsArray: Array<{customer: string, projects: Array<Project>}> = new Array();
   private timer: any;
 
   public constructor(private backgroundMode: BackgroundMode) {
-    this.projects.push(new Project("project1", "customer1", moment.utc("00:00:00", "HH:mm:ss"), false));
-    this.projects.push(new Project("project2", "customer1", moment.utc("00:00:00", "HH:mm:ss"), false));
-    this.projects.push(new Project("project3", "customer2", moment.utc("00:00:00", "HH:mm:ss"), false));
+
+    let projectArray: Array<any> = this.stubGetProjects();
+
+    this.projectsArray = this.groupByProject(projectArray);
+
   };
 
   public toggle(project: Project): void {
@@ -31,9 +34,11 @@ export class TrackPage {
     }
   }
 
-  private getTracked() {
-    let result = this.projects.filter(project => project.isTracked);
+  private getTracked(): Project {
+    let result: Array<any> = this.projectsArray.map((item) => item.projects);
+    result = _.flatten(result).filter(project => project.isTracked);
     if (result.length>0) return result[0];
+
     else return null;
   }
 
@@ -61,6 +66,29 @@ export class TrackPage {
 
     project.isTracked = false;
     clearInterval(this.timer);
+  }
+
+  private groupByProject(projects: Array<any>): Array<any> {
+    let resultArray = new Array<Object>();
+
+    let grouped = _.groupBy(projects, (proj) => proj.customer);
+
+    for (let customer in grouped) {
+      resultArray.push({
+        customer: customer,
+        projects: grouped[customer]
+      });
+    }
+
+    return _.sortBy(resultArray, ['customer']);
+  }
+
+  private stubGetProjects() {
+    return [
+      new Project("Assetwatch", "e-geos", moment.utc("00:00:00", "HH:mm:ss"), false),
+      new Project("SEonSE", "e-geos", moment.utc("00:00:00", "HH:mm:ss"), false),
+      new Project("Follow.Me", "AAL", moment.utc("00:00:00", "HH:mm:ss"), false)
+    ]
   }
 }
 
